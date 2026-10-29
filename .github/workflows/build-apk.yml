@@ -1,0 +1,52 @@
+name: Build MR.Config Android APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+
+      - name: Generate Android Platform Files Safely
+        run: |
+          cp lib/main.dart main_backup.dart
+          cp pubspec.yaml pubspec_backup.yaml
+          flutter create --platforms=android --project-name mr_config_invoice --org ir.mrconfig .
+          mv main_backup.dart lib/main.dart
+          mv pubspec_backup.yaml pubspec.yaml
+
+      - name: Download Vazirmatn Persian Fonts
+        run: |
+          mkdir -p assets/fonts
+          curl -L -o assets/fonts/Vazirmatn-Regular.ttf https://github.com/rastikerdar/vazirmatn/raw/master/fonts/ttf/Vazirmatn-Regular.ttf
+          curl -L -o assets/fonts/Vazirmatn-Bold.ttf https://github.com/rastikerdar/vazirmatn/raw/master/fonts/ttf/Vazirmatn-Bold.ttf
+
+      - name: Install Flutter Dependencies
+        run: flutter pub get
+
+      - name: Build Release APK
+        run: flutter build apk --release --no-tree-shake-icons
+
+      - name: Upload Compiled APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MR.Config-Invoice-App
+          path: build/app/outputs/flutter-apk/app-release.apk
