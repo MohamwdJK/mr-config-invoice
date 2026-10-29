@@ -61,7 +61,7 @@ class MrConfigApp extends StatelessWidget {
             borderSide: const BorderSide(color: techBlue, width: 1.5),
           ),
         ),
-        cardTheme: CardThemeData(
+        cardTheme: CardTheme(
           color: Colors.white,
           elevation: 1,
           shape: RoundedRectangleBorder(
