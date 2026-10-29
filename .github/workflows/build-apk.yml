@@ -25,22 +25,29 @@ jobs:
           flutter-version: '3.24.0'
           channel: 'stable'
 
-      - name: Generate Android Platform Files Safely
+      - name: Verify Files & Generate Android Shell
         run: |
-          cp lib/main.dart main_backup.dart
+          echo "Checking existing files..."
+          ls -la
+          ls -la lib/
+          cp -r lib lib_backup
           cp pubspec.yaml pubspec_backup.yaml
           flutter create --platforms=android --project-name mr_config_invoice --org ir.mrconfig .
-          mv main_backup.dart lib/main.dart
+          rm -rf lib
+          mv lib_backup lib
           mv pubspec_backup.yaml pubspec.yaml
 
       - name: Download Vazirmatn Persian Fonts
         run: |
           mkdir -p assets/fonts
-          curl -L -o assets/fonts/Vazirmatn-Regular.ttf https://github.com/rastikerdar/vazirmatn/raw/master/fonts/ttf/Vazirmatn-Regular.ttf
-          curl -L -o assets/fonts/Vazirmatn-Bold.ttf https://github.com/rastikerdar/vazirmatn/raw/master/fonts/ttf/Vazirmatn-Bold.ttf
+          curl -L -s -o assets/fonts/Vazirmatn-Regular.ttf https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/ttf/Vazirmatn-Regular.ttf
+          curl -L -s -o assets/fonts/Vazirmatn-Bold.ttf https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/ttf/Vazirmatn-Bold.ttf
+          ls -lh assets/fonts/
 
       - name: Install Flutter Dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get
+          flutter pub upgrade
 
       - name: Build Release APK
         run: flutter build apk --release --no-tree-shake-icons
